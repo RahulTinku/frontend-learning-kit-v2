@@ -1,0 +1,48 @@
+{
+  "name": "frontend-learning-kit-v2",
+  "version": "0.1.0",
+  "description": "The definitive roadmap for frontend platform engineers",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "frontend",
+    "platform-engineering",
+    "roadmap",
+    "learning",
+    "developer-experience",
+    "micro-frontends",
+    "design-systems"
+  ],
+  "author": "Rahul Kumar <https://github.com/RahulTinku>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RahulTinku/frontend-learning-kit-v2.git"
+  },
+  "homepage": "https://github.com/RahulTinku/frontend-learning-kit-v2#readme",
+  "dependencies": {
+    "@mdx-js/loader": "^3.0.0",
+    "@mdx-js/react": "^3.0.0",
+    "@next/mdx": "^15.0.0",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.0",
+    "@types/mdx": "^2.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.0.0",
+    "postcss": "^8.0.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.4.0"
+  }
+}

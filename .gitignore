@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Production
+dist/
+build/
+
+# Misc
+*.js.map
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.DS_Store
+
+# Vercel
+.vercel
+
+# Lock file contains internal registry URLs when installed on Walmart network
+package-lock.json
+# Internal AI assistant config — contains Walmart tooling references, never commit to public repos
+AGENTS.md
