@@ -1,0 +1,151 @@
+import { DocsLayout } from '@/components/DocsLayout';
+
+export const metadata = { title: 'Reading List' };
+
+<DocsLayout>
+
+# Curated Reading List
+
+> Organised by topic. These are the resources that actually changed how I think — not a comprehensive bibliography.
+
+---
+
+## Platform Engineering & Architecture
+
+### Articles
+
+**[The Platform Engineering Spectrum](https://martinfowler.com/articles/platform-ux.html)** — Martin Fowler & Evan Bottcher  
+The clearest definition of what a platform is and the "Thinnest Viable Platform" principle. Required reading before building anything platform-related.
+
+**[Design Systems: The Hard Parts](https://www.smashingmagazine.com/2021/12/dysfunctional-design-systems/)** — Nathan Curtis  
+Why design systems fail and what to do about it. More honest than most design system content.
+
+**[Scaling Frontend Development: Lessons from Five Years of Platform Work](https://increment.com/frontend/)** — Increment Magazine  
+Multiple perspectives on what frontend platform engineering looks like at different scales.
+
+**[The Twelve-Factor App](https://12factor.net/)** — Adam Wiggins  
+Written for backend but the principles apply to frontend: configuration, statelessness, port binding. A foundation, not a ceiling.
+
+---
+
+## JavaScript & Performance
+
+### Books
+
+**High Performance JavaScript** — Nicholas Zakas  
+Older but the mental models are timeless: how the engine works, why certain patterns are faster, how the browser renders.
+
+### Articles
+
+**[The Cost of JavaScript in 2022](https://v8.dev/blog/cost-of-javascript-2022)** — V8 Team  
+Updated analysis of parse/compile costs. The TL;DR: bytes downloaded ≠ bytes processed.
+
+**[Patterns for Reactivity with Modern Vanilla JavaScript](https://frontendmastery.com/posts/the-evolution-of-signals-in-javascript/)** — Ryan Carniato  
+The history and future of signals, from Knockout to Solid to React's compiler direction.
+
+**[Web Performance Recipes](https://web.dev/performance/)** — web.dev  
+The reference for Core Web Vitals measurement and optimisation.
+
+---
+
+## React
+
+### Articles
+
+**[A (Mostly) Complete Guide to React Rendering Behavior](https://blog.isquaredsoftware.com/2020/05/blogged-answers-a-mostly-complete-guide-to-react-rendering-behavior/)** — Mark Erikson  
+The most thorough explanation of when React renders and why. Bookmark it.
+
+**[React Internals Deep Dive](https://jser.dev/series/react-source-code-walkthrough)** — jser.dev  
+Walks through the React source code explaining Fiber, reconciliation, and hooks. Long but worth it.
+
+**[React Server Components](https://react.dev/blog/2023/03/22/react-labs-what-we-have-been-working-on-march-2023)** — React Team  
+The architectural shift to server components explained by the team building it.
+
+---
+
+## TypeScript
+
+### Books
+
+**Effective TypeScript** — Dan Vanderkam  
+Structured like Effective C++ or Effective Java. 62 specific things to do and avoid. The most practical TypeScript book.
+
+### Articles
+
+**[TypeScript: The Good Parts](https://www.typescriptlang.org/docs/handbook/2/types-from-types.html)** — TypeScript Handbook  
+The advanced types section: conditional types, mapped types, template literal types. The features that separate TypeScript users from TypeScript experts.
+
+---
+
+## Developer Experience & Tooling
+
+### Articles
+
+**[The Developer Experience Gap](https://dx.tips/the-developer-experience-gap)** — DX Tips  
+Why DX investment pays off at scale and how to make the case for it to leadership.
+
+**[Engineering Productivity at Scale](https://queue.acm.org/detail.cfm?id=3454124)** — ACM Queue  
+Research-backed analysis of what actually improves software delivery performance. The data behind DORA metrics.
+
+**[Ship Small, Ship Often](https://martinfowler.com/articles/continuousIntegration.html)** — Martin Fowler  
+The original continuous integration article. Still the most compelling case for trunk-based development.
+
+---
+
+## Module Federation & Micro-Frontends
+
+### Articles
+
+**[Module Federation Documentation](https://module-federation.io/)** — Zack Jackson  
+The definitive resource. Read the concepts section before the configuration.
+
+**[Micro-Frontends: How Micro Frontends are Done Well and When to Use Them](https://micro-frontends.org/)** — Cam Jackson  
+Balanced perspective on when micro-frontends are the right choice. The "when NOT to use them" section is underrated.
+
+**[Decisions, Trade-offs, and Architecture: How We Built the New Twitter](https://blog.twitter.com/engineering/en_us/topics/infrastructure/2019/rebuilding-twitter-com)** — Twitter Engineering  
+Real-world architecture decisions at scale. The honest discussion of trade-offs is rare in engineering blog posts.
+
+---
+
+## AI & the Future of Engineering
+
+### Articles
+
+**[Model Context Protocol](https://modelcontextprotocol.io/introduction)** — Anthropic  
+The spec for how AI assistants connect to tools and data. If you're building anything AI-related, start here.
+
+**[The Bitter Lesson](http://incompleteideas.net/IncIdeas/BitterLesson.html)** — Rich Sutton  
+7-minute read. The most important thing to understand about where AI capabilities come from. Relevant to thinking about AI tooling long-term.
+
+**[AI and Software Engineering: What Changes](https://newsletter.pragmaticengineer.com/p/ai-coding-tools)** — Gergely Orosz  
+Pragmatic, data-driven analysis of how AI tools are actually changing engineering workflows at different levels of seniority.
+
+---
+
+## Talks
+
+**[The Cost of Abstraction](https://www.youtube.com/watch?v=mVVNJKv9esE)** — Dan Abramov, React Conf 2019  
+Why React moved from classes to hooks. The mental model for why API design matters as much as implementation.
+
+**[Performance Deep Dive](https://www.youtube.com/watch?v=YbEA17Wq7Ac)** — Paul Irish, Google I/O  
+Browser rendering pipeline explained by someone who helped build Chrome DevTools.
+
+**[Rethinking Best Practices](https://www.youtube.com/watch?v=x7cQ3mrcKaY)** — Pete Hunt, JSConf EU 2013  
+The original React pitch. Still the best argument for component-based thinking.
+
+---
+
+## RFC & Specification Reading
+
+Reading the actual RFCs and specs is one of the highest-signal things a senior engineer can do. Start here:
+
+- [TC39 Proposals](https://github.com/tc39/proposals) — upcoming JavaScript features
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/) — accessibility standards
+- [HTTP/2 RFC](https://httpwg.org/specs/rfc7540.html) — how HTTP/2 actually works
+- [OpenFeature Specification](https://openfeature.dev/specification/) — feature flag standards
+
+---
+
+*This list is updated periodically. If you have a resource that genuinely changed how you think about frontend platform engineering, [open a PR](https://github.com/RahulTinku/frontend-learning-kit-v2).*
+
+</DocsLayout>

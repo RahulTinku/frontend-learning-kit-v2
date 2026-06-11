@@ -1,0 +1,194 @@
+import { DocsLayout } from '@/components/DocsLayout';
+
+export const metadata = { title: 'Design Systems' };
+
+<DocsLayout>
+
+# Design Systems
+
+> Not a component library. A design system is an agreement between design and engineering — expressed in code.
+
+---
+
+## Why Most Design Systems Fail
+
+Before diving in, let's be honest about what usually goes wrong.
+
+**The three most common failure modes:**
+
+1. **Built by one team, ignored by everyone else.** A design system that only works for the people who built it isn't a platform — it's a fork waiting to happen.
+
+2. **Too abstract too early.** Teams try to design the perfect token system before they have three real products using it. You can't abstract patterns you haven't discovered yet.
+
+3. **No adoption strategy.** Publishing the npm package is not the work. Getting 50 teams to actually use it is the work.
+
+---
+
+## Core Concepts
+
+### Design Tokens
+
+Design tokens are the primitive values of your design system — the raw material everything else is made from.
+
+**Three levels of tokens:**
+
+```
+Primitive tokens     → Base colors, spacing, type scales
+  color.blue.500: #3B82F6
+  spacing.4: 16px
+
+Semantic tokens      → Purpose-driven aliases
+  color.interactive.default: color.blue.500
+  color.interactive.hover: color.blue.600
+
+Component tokens     → Component-specific bindings
+  button.background.primary: color.interactive.default
+  button.background.primary.hover: color.interactive.hover
+```
+
+**Why the three levels matter:**
+
+When you change `color.blue.500`, everything downstream updates automatically. When you rebrand, you only change the mapping at the semantic layer — your components don't change at all.
+
+### Component API Design
+
+The most important design decision in a component library is not what it looks like — it's how it behaves as an API.
+
+**Principles for APIs that age well:**
+
+**1. Controlled > uncontrolled when state matters**
+
+Uncontrolled components are easy to use initially but hard to integrate into complex UIs. Controlled components are slightly more verbose but composable everywhere.
+
+**2. Composability over configuration**
+
+```tsx
+// Avoid: prop soup that grows with every new use case
+<Modal
+  title="Confirm"
+  subtitle="Are you sure?"
+  primaryButton="Yes"
+  secondaryButton="No"
+  icon="warning"
+  onPrimary={handleYes}
+  onSecondary={handleNo}
+/>
+
+// Prefer: composable parts
+<Modal>
+  <Modal.Header>
+    <Modal.Title>Confirm</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>Are you sure?</Modal.Body>
+  <Modal.Footer>
+    <Button variant="ghost" onClick={handleNo}>No</Button>
+    <Button onClick={handleYes}>Yes</Button>
+  </Modal.Footer>
+</Modal>
+```
+
+**3. Escape hatches for power users**
+
+Every component should have a way to drop down to lower-level primitives. `className`, `style`, `as`, `ref`, `data-*` attributes — without these, teams fork instead of extending.
+
+**4. Variants as a type**
+
+```tsx
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
+```
+
+Not booleans (`isPrimary`, `isSecondary`). A button can't be both primary and secondary — the type should prevent it.
+
+---
+
+## Building for Adoption
+
+### The "Seam" Strategy
+
+Don't launch a design system with 100 components and announce it. Instead:
+
+1. **Find one team with a greenfield project.** Use them to build your first 10 components in their real UI.
+2. **Solve one high-visibility, high-pain problem** (usually forms or tables).
+3. **Make the migration story stupidly easy.** Codemods > docs > asking teams to do it manually.
+
+### Documentation That Actually Helps
+
+The default Storybook canvas is not documentation. What developers actually need:
+
+- **When to use this component** (and when NOT to)
+- **Code they can copy-paste** and it works
+- **Common mistakes** and how to avoid them
+- **Accessibility notes** baked in, not as an afterthought
+
+### Governance
+
+Who gets to merge changes to the design system?
+
+**Three models:**
+
+| Model | Best for | Risk |
+|-------|----------|------|
+| Centralised team | Consistency, quality control | Bottleneck, slow |
+| Open contributions | Speed, buy-in | Inconsistency |
+| Federated with stewards | Balance | Coordination overhead |
+
+Most mature design systems start centralised and evolve toward a federated model as the component library stabilises.
+
+---
+
+## Versioning & Breaking Changes
+
+This is where most component libraries make painful mistakes.
+
+**What actually counts as a breaking change:**
+- Removing a prop
+- Changing a prop's type to be more restrictive
+- Changing default behaviour that users depend on
+- Changing the DOM structure in a way that breaks CSS selectors
+- Changing a component's accessible name or role
+
+**What usually isn't breaking (but teams often treat it as if it is):**
+- Visual changes with no semantic impact
+- Adding new optional props with defaults
+- Improving performance or fixing bugs
+
+**The migration path:**
+
+```tsx
+// v1 — original API
+<Button isPrimary onClick={fn}>Submit</Button>
+
+// v2 — new API with backward compat
+<Button variant="primary" onClick={fn}>Submit</Button>
+
+// Publish a codemod. Never just publish a changelog.
+```
+
+---
+
+## Tooling Stack
+
+| Tool | Purpose |
+|------|---------|
+| Storybook | Develop and document components in isolation |
+| Chromatic | Visual regression testing, design review |
+| Style Dictionary | Transform design tokens into platform-specific formats |
+| Radix UI / Headless UI | Accessible behaviour primitives |
+| CVA (Class Variance Authority) | Type-safe variant props with Tailwind |
+| Changesets | Versioning and changelogs in monorepos |
+
+---
+
+## The Long Game
+
+A design system is never "done". It's a living system that needs active stewardship.
+
+The mature phase looks like:
+- Automated visual diffs on every PR
+- Usage analytics (which components are used, in which products)
+- Regular audits for accessibility compliance
+- A clear process for proposing and accepting new components
+
+The goal isn't a perfect system on day one. The goal is a system that improves incrementally without breaking what's already built.
+
+</DocsLayout>

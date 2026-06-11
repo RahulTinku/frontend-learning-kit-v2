@@ -1,0 +1,159 @@
+import { DocsLayout } from '@/components/DocsLayout';
+
+export const metadata = { title: 'Platform Engineering Roadmap' };
+
+<DocsLayout>
+
+# Frontend Platform Engineering Roadmap
+
+> A structured learning path for engineers who want to move from building features to building the infrastructure that others build features on.
+
+---
+
+## What is a Frontend Platform Engineer?
+
+A frontend platform engineer builds **the systems, tools, and frameworks that other frontend engineers depend on**. You're not building user-facing products directly — you're multiplying every other engineer's productivity by solving problems at scale.
+
+Think of it as being the engine room rather than the bridge. You make the ship go faster and more reliably for everyone on it.
+
+**The shift in mindset:**
+- From: "How do I build this feature correctly?"
+- To: "How do I make it easy for anyone to build any feature correctly?"
+
+---
+
+## Phase 1 — Strong Frontend Foundations
+
+Before you can build platforms, you need to deeply understand what you're platforming.
+
+### Core JavaScript & TypeScript
+- Deep understanding of the event loop, closures, prototypes
+- TypeScript: generics, conditional types, mapped types, declaration merging
+- Module systems: ESM vs CommonJS, dynamic imports, tree-shaking
+
+### React Internals
+- Reconciliation and the fiber architecture
+- Concurrent features: Suspense, transitions, `useDeferredValue`
+- Server Components and the React rendering model
+- Hooks: how they work at the memory cell level
+
+### Build Tooling
+- Webpack: loaders, plugins, code splitting, Module Federation
+- Vite: Rollup-based, native ESM, plugin API
+- Bundle analysis: what's in your bundle and why
+- Source maps, minification, and dead code elimination
+
+### Performance
+- Core Web Vitals (LCP, FID/INP, CLS) and how to measure them
+- `requestAnimationFrame`, `requestIdleCallback`
+- Resource hints: `preload`, `prefetch`, `preconnect`
+- Rendering patterns: SSR, SSG, ISR, CSR — and when to use each
+
+---
+
+## Phase 2 — Platform Thinking
+
+### Shared Libraries & Versioning
+- Designing APIs that age well: backward compatibility, deprecation policies
+- Semantic versioning in practice — when a change is breaking vs. not
+- Monorepos: Turborepo, Nx, and managing shared packages
+- Peer dependencies, optional dependencies, and version conflicts
+
+### Design Systems
+- Building a component library that teams actually use
+- Design tokens: the contract between design and engineering
+- Storybook: component development in isolation
+- Accessibility as a platform responsibility, not a feature
+
+### Extensibility & Plugin Systems
+- How to design a platform that can be extended without forking
+- Plugin APIs, hook systems, and escape hatches
+- Configuration vs. convention: when each is the right choice
+
+---
+
+## Phase 3 — Developer Experience
+
+### CI/CD Pipelines
+- Pipeline anatomy: lint → test → build → deploy
+- Caching strategies that make pipelines fast
+- Feature flags for gradual rollouts
+- Preview deployments and PR environments
+
+### Local Development
+- Reducing startup time for large apps
+- Hot module replacement and fast refresh
+- Service mocking: MSW and why it matters
+- Consistent environments: dev containers, Nix, mise
+
+### Observability for Developers
+- Error boundaries and crash reporting
+- Runtime performance profiling
+- Logging conventions that are searchable
+- Build-time metrics: bundle size budgets, type-check times
+
+---
+
+## Phase 4 — Large-Scale Migrations
+
+This is often where platform engineers have the most impact — and the most risk.
+
+### Codemod-Based Migrations
+- AST transforms with jscodeshift: the right tool for mechanical changes
+- Writing testable codemods: before/after fixtures, edge cases
+- Running migrations incrementally across hundreds of repos
+- Reporting and tracking migration progress
+
+### Dependency Upgrades
+- Semver analysis: what a major upgrade actually breaks
+- Strangler fig pattern for framework migrations
+- Feature detection over version detection
+
+### Communication
+- Writing migration guides that developers will actually read
+- Providing automated tools before asking teams to do manual work
+- Tracking adoption rates and following up
+
+---
+
+## Phase 5 — AI-Assisted Platform Engineering
+
+The platform engineer role is evolving fast with AI tooling.
+
+### Model Context Protocol (MCP)
+- Giving AI assistants real-time context about your platform
+- Building MCP servers for bundle analysis, component docs, accessibility
+- The difference between AI with and without platform context
+
+### Agentic Workflows
+- Codemods as an on-ramp to AI-driven migrations
+- AI-reviewed pull requests at the platform level
+- Guardrails: when to trust automated changes and when not to
+
+---
+
+## Skills Matrix
+
+| Skill | Junior | Mid | Senior | Staff/Principal |
+|-------|--------|-----|--------|-----------------|
+| TypeScript | ✓ | ✓✓ | ✓✓✓ | ✓✓✓ |
+| Build tooling | basics | configure | author plugins | architect |
+| Design systems | consume | contribute | lead | govern |
+| Codemods | understand | run | write | design |
+| MCP / AI tooling | aware | use | build | pioneer |
+| Org influence | team | team+ | cross-team | org-wide |
+
+---
+
+## Where to Start
+
+If you're just getting into platform engineering, pick **one concrete pain point** your team faces and solve it systematically:
+
+1. Is app setup painful? → Build a scaffolding CLI
+2. Is the bundle too large? → Build a bundle analysis tool
+3. Are migrations manual? → Write a codemod
+4. Is local dev slow? → Profile it and fix the bottleneck
+
+Platform engineering is learned by doing, not by reading. The roadmap above gives you the map, but the work gives you the territory.
+
+</DocsLayout>

@@ -1,0 +1,184 @@
+import { DocsLayout } from '@/components/DocsLayout';
+
+export const metadata = { title: 'Micro-Frontends & Module Federation' };
+
+<DocsLayout>
+
+# Micro-Frontends & Module Federation
+
+> Micro-frontends solve an organisational problem, not a technical one. If you don't have the organisational problem, you don't need the solution.
+
+---
+
+## What Problem Are You Actually Solving?
+
+Micro-frontends get adopted for two very different reasons, and conflating them leads to bad decisions.
+
+**Reason 1: Independent deployability**
+
+Multiple teams want to ship their part of the UI without coordinating releases with every other team. The problem is coupling in the deployment pipeline, not in the code.
+
+**Reason 2: Technology heterogeneity**
+
+You have a legacy Angular app and you want to migrate to React page by page without a big-bang rewrite.
+
+These problems have different solutions. Independent deployability points toward Module Federation. Technology heterogeneity points toward iframes or a strangler fig pattern.
+
+---
+
+## Core Approaches
+
+### Module Federation (Webpack 5)
+
+Module Federation lets one JavaScript application load code from another at runtime. No coordination, no shared build, no monorepo required.
+
+**The vocabulary:**
+
+- **Host** — the application that consumes remote modules
+- **Remote** — the application that exposes modules
+- **Shared dependencies** — libraries like React that should only be loaded once
+
+**`webpack.config.js` for a remote:**
+
+```js
+new ModuleFederationPlugin({
+  name: 'checkout',
+  filename: 'remoteEntry.js',
+  exposes: {
+    './CheckoutWidget': './src/CheckoutWidget',
+  },
+  shared: {
+    react: { singleton: true, requiredVersion: '^18.0.0' },
+    'react-dom': { singleton: true, requiredVersion: '^18.0.0' },
+  },
+});
+```
+
+**`webpack.config.js` for the host:**
+
+```js
+new ModuleFederationPlugin({
+  name: 'shell',
+  remotes: {
+    checkout: 'checkout@https://checkout.myapp.com/remoteEntry.js',
+  },
+  shared: {
+    react: { singleton: true },
+    'react-dom': { singleton: true },
+  },
+});
+```
+
+**Loading in the host:**
+
+```tsx
+const CheckoutWidget = React.lazy(() => import('checkout/CheckoutWidget'));
+
+function App() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <CheckoutWidget />
+    </Suspense>
+  );
+}
+```
+
+### Vite Module Federation
+
+`@originjs/vite-plugin-federation` brings Module Federation to Vite. The API is similar but not identical to Webpack's.
+
+### iframes
+
+Often dismissed but genuinely the right answer when:
+- You need hard security isolation between teams
+- The sub-application is truly independent (different auth, different data)
+- You're embedding third-party content
+
+The downsides (layout constraints, URL sync, performance) are real but solvable.
+
+---
+
+## The Hard Problems Nobody Talks About
+
+### Shared State
+
+Micro-frontends are architecturally independent, but UX is not. How does the cart count in the header know about a product added in the product detail page (different MFE)?
+
+**Options:**
+- **Custom events** on `window` — simple, no coupling, but you have to design the event schema
+- **Shared state via URL** — the most durable, survives page refreshes
+- **Observable store** (Zustand, Jotai, RxJS) shared via a singleton module
+
+### CSS Isolation
+
+Two independent MFEs both have a `.btn { color: red }` rule. Who wins?
+
+**Strategies:**
+- **CSS Modules** — scoped by default, the safest option
+- **Shadow DOM** — true isolation but complex for shared design systems
+- **CSS custom properties** — tokens shared, styles isolated
+- **BEM with team prefixes** — manual but predictable
+
+### Authentication
+
+Each MFE needs the user token. Options:
+- **Single shared auth state** — simplest, requires coordination
+- **Token passed via props/events** — more isolated but verbose
+- **Service worker** — intercepts all requests and attaches auth header
+
+### Error Boundaries
+
+When a remote MFE fails to load (network error, deployment issue), the entire app shouldn't crash.
+
+```tsx
+function RemoteWidget() {
+  return (
+    <ErrorBoundary fallback={<ErrorState />}>
+      <Suspense fallback={<Skeleton />}>
+        <LazyRemoteWidget />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+```
+
+---
+
+## When NOT to Use Micro-Frontends
+
+Micro-frontends add real complexity. Don't use them if:
+
+- **You have one team.** The coordination overhead exists to solve cross-team problems.
+- **Your deploy pipeline is already fast.** If you can ship in 15 minutes, you don't have the problem MFEs solve.
+- **Your app is small.** The overhead of a federation setup is not worth it below a certain scale.
+- **Your teams share a design system.** Coordinating shared dependencies gets painful fast.
+
+The trap is seeing large companies use micro-frontends and assuming it's best practice. They use them because their organisational scale demands it. Adopt the same scale first.
+
+---
+
+## Migration Strategy: Strangler Fig
+
+If you're migrating from a monolith, the strangler fig pattern works well:
+
+1. **Stand up the new shell** — the host application that will eventually replace the monolith
+2. **Route new features to the new MFE** — all greenfield work goes into the new architecture
+3. **Migrate high-value, high-traffic pages first** — proven paths in the new system
+4. **Strangler the monolith page by page** — progressively redirect routes
+5. **Decommission the monolith** — when all routes are migrated
+
+This can take months or years depending on the size of the monolith. That's normal.
+
+---
+
+## Tooling
+
+| Tool | Purpose |
+|------|---------|
+| `@module-federation/core` | Vendor-agnostic Module Federation runtime |
+| `@originjs/vite-plugin-federation` | Module Federation for Vite |
+| `single-spa` | Framework-agnostic micro-frontend orchestration |
+| Bit | Component-level federation with versioning |
+| Nx | Monorepo tooling with MFE support |
+
+</DocsLayout>

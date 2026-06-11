@@ -1,0 +1,203 @@
+import { DocsLayout } from '@/components/DocsLayout';
+
+export const metadata = { title: 'AI Tooling for Frontend Developers' };
+
+<DocsLayout>
+
+# AI Tooling for Frontend Developers
+
+> The engineers who will thrive in the next decade aren't the ones who fear AI replacement. They're the ones who use AI to work at a higher altitude.
+
+---
+
+## The Shift That's Actually Happening
+
+AI coding tools have been around long enough that we can describe what's actually changing — not the hype, the reality.
+
+**What AI is genuinely good at today:**
+- Writing boilerplate that follows established patterns
+- Explaining unfamiliar code or APIs
+- Generating test cases for edge conditions you described
+- Transforming code mechanically (renaming, refactoring, migrating)
+
+**What still needs a senior engineer:**
+- Architectural decisions with long-term consequences
+- Understanding why existing code is the way it is
+- Debugging production issues with incomplete information
+- Knowing which tradeoffs to accept
+
+The net effect for platform engineers: the boring parts of the job get faster, which means you spend more time on the parts that require deep expertise.
+
+---
+
+## Model Context Protocol (MCP)
+
+MCP (Model Context Protocol) is the standard for giving AI assistants real-time, structured access to tools and data.
+
+Without MCP, an AI assistant only knows what you paste into the chat.
+
+With MCP, an AI assistant can:
+- Query your actual bundle stats ("why is lodash in this bundle?")
+- Run accessibility audits against your live app
+- Read your component tree and answer questions about it
+- Check your Lighthouse scores and suggest improvements
+
+### Building an MCP Server
+
+An MCP server exposes **tools** (functions the AI can call) and optionally **resources** (data the AI can read).
+
+```typescript
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
+
+const server = new McpServer({
+  name: 'bundle-analyzer',
+  version: '1.0.0',
+});
+
+server.tool(
+  'analyze-bundle',
+  { statsPath: z.string().describe('Path to webpack stats.json') },
+  async ({ statsPath }) => {
+    const stats = JSON.parse(await fs.readFile(statsPath, 'utf-8'));
+    const largest = getTopModules(stats, 10);
+    return {
+      content: [{
+        type: 'text',
+        text: formatBundleReport(largest),
+      }],
+    };
+  }
+);
+```
+
+The AI can now call `analyze-bundle` and answer "why is my bundle 4MB?" with real data.
+
+### What Makes a Good MCP Tool
+
+**Focused, not general.** A tool that does one thing well is more useful than one that tries to do everything.
+
+**Returns structured, scannable output.** The AI needs to parse your output. Tables, structured text, and clear labelling beat raw JSON dumps.
+
+**Explains what it found, not just the raw data.** "lodash is included 3 times via different import paths" is more useful than a flat list of modules.
+
+**Handles errors gracefully.** The AI will call your tool with imperfect inputs. Return useful error messages, not stack traces.
+
+---
+
+## AI-Assisted Code Migrations
+
+AST-based codemods handle the mechanical parts of migrations perfectly. AI handles the cases codemods can't.
+
+**The hybrid approach:**
+
+1. **Codemod handles 80–90%** of cases mechanically (class-to-hooks, cjs-to-esm, etc.)
+2. **AI handles the remaining 10–20%** that have patterns the codemod couldn't predict
+3. **Human review confirms** the AI's suggestions before merging
+
+This is orders of magnitude faster than a purely manual migration.
+
+### Writing Codemod-Aware Prompts
+
+When using AI for migration tasks, give it the context it needs:
+
+```
+You are migrating a React codebase from Enzyme to React Testing Library.
+The following patterns have already been handled by an automated codemod:
+- shallow() and mount() → render()
+- Enzyme imports → @testing-library/react imports
+
+The remaining code still contains Enzyme patterns that the codemod couldn't handle automatically.
+For each `wrapper.find()` call, suggest the correct RTL equivalent using the accessibility-first
+query priority: getByRole > getByLabelText > getByPlaceholderText > getByText.
+```
+
+Specificity and context dramatically improve AI output quality.
+
+---
+
+## AI Code Review
+
+AI is good at catching a specific class of bugs that humans routinely miss in code review:
+
+- Off-by-one errors in loops
+- Unhandled promise rejections
+- Missing null checks on optional values
+- Inconsistent error handling patterns
+- Performance anti-patterns (creating objects in render, missing memo)
+
+**What AI code review doesn't replace:**
+
+- Architectural feedback ("this should be in a shared hook, not this component")
+- Business logic review ("this handles the wrong edge case")
+- Security review that requires context about the system
+
+Use AI review as a first pass to catch mechanical issues before human reviewers spend time on them.
+
+---
+
+## Prompt Engineering for Frontend Engineers
+
+Most frontend engineers underuse AI because they prompt it like a search engine.
+
+**Instead of:**
+```
+How do I use useMemo?
+```
+
+**Try:**
+```
+I have a React component that renders a large sorted list.
+The list is sorted by a derived value computed from 3 props.
+The sort is running on every render even when the props haven't changed.
+Here's the component: [paste code]
+Show me how to memoize correctly, and explain what dependency to watch.
+```
+
+**Principles:**
+
+1. **Provide the actual code.** Don't describe code, paste it.
+2. **State the goal, not just the problem.** "I want X, but I'm seeing Y" is more useful than "how do I fix Y?"
+3. **Give constraints.** "We're on React 18, we can't use external libraries, this runs in IE11" — these matter.
+4. **Ask for explanations.** "Explain your approach so I can adapt it" often produces better output than just accepting the first answer.
+
+---
+
+## Integrating AI into the Platform
+
+At the platform level, AI tools offer leverage in several areas:
+
+### Automated PR Analysis
+
+CI can run an AI pass on every PR to:
+- Suggest test cases for uncovered branches
+- Flag potential performance regressions
+- Check that API changes are documented
+
+### Scaffold Verification
+
+When `create-platform-app` generates a new project, an AI step can verify:
+- Required configurations are present
+- Security headers are set
+- No development-only dependencies in production config
+
+### Documentation Generation
+
+AI can generate initial documentation from code:
+- Component API docs from TypeScript prop types
+- Changelog summaries from git commit messages
+- Migration guides from codemod diffs
+
+These are always a starting point, never a finished product.
+
+---
+
+## The Floor Is Raising, Not the Ceiling Lowering
+
+The right mental model: AI tools are raising the floor for what a single engineer can accomplish. The ceiling — the depth of expertise required for the hardest problems — is not lowering.
+
+A junior engineer with AI tools can now produce work at a mid-level quality. A mid-level engineer can work at senior speed. A senior engineer can own the architecture and implementation of things that would have previously required a team.
+
+This is good for engineers who are continuously learning. It's challenging for engineers who stopped.
+
+</DocsLayout>

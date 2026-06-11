@@ -1,0 +1,210 @@
+import { DocsLayout } from '@/components/DocsLayout';
+
+export const metadata = { title: 'Developer Experience Engineering' };
+
+<DocsLayout>
+
+# Developer Experience Engineering
+
+> Developer experience is not about making developers happy. It's about reducing the time between "I have an idea" and "it's in production".
+
+---
+
+## What DX Engineering Actually Is
+
+Developer experience engineering is the practice of systematically identifying and eliminating friction in developer workflows.
+
+The key word is **systematically**. Anyone can notice that something is slow or annoying. A DX engineer turns that observation into a measurable problem, designs a solution at the platform level, ships it, and verifies the impact.
+
+**The difference:**
+- A developer says: "Our CI is slow."
+- A DX engineer says: "Our P50 CI time is 18 minutes, up from 11 minutes 3 months ago. The regression traces to a new integration test suite added in November. Here's a plan to get it back under 12 minutes."
+
+---
+
+## Measuring DX
+
+You can't improve what you can't measure. Before fixing anything, instrument your workflows.
+
+### DORA Metrics
+
+The four DORA metrics are the standard for engineering throughput:
+
+| Metric | What it measures | Elite benchmark |
+|--------|-----------------|-----------------|
+| **Deployment frequency** | How often code ships | On-demand / multiple per day |
+| **Lead time for changes** | Commit → production | Less than 1 hour |
+| **Change failure rate** | % of deploys that cause incidents | 0–5% |
+| **MTTR (mean time to restore)** | How fast you recover | Less than 1 hour |
+
+### Developer-Specific Signals
+
+Beyond DORA, track signals closer to the developer's daily experience:
+
+- **Build time (P50, P90, P99)** — the pain is in the tail
+- **Test suite duration** — and which tests are the slowest
+- **Time to first reviewable PR** — from branch creation to first CI green
+- **Onboarding time** — how long until a new joiner ships their first PR
+
+### Experience Surveys
+
+Quantitative metrics miss the "why". A short monthly survey (5 questions max) surfaces friction that numbers can't:
+
+- What slowed you down this week?
+- Rate your confidence in the CI pipeline (1–5)
+- What's the most painful part of the deploy process?
+
+---
+
+## CI/CD Pipeline Optimisation
+
+### Anatomy of a Slow Pipeline
+
+Before optimising, profile. Most CI slowness comes from a small number of culprits:
+
+1. **Cold starts** — pulling Docker images, cloning the repo, installing deps
+2. **Serial execution** — steps that could run in parallel are running sequentially
+3. **Test flakiness** — tests that fail randomly cause retries and inflate average times
+4. **Unnecessary work** — running full test suites when only docs changed
+
+### Caching
+
+The single highest-impact optimisation in most pipelines:
+
+```yaml
+# GitHub Actions example
+- uses: actions/cache@v4
+  with:
+    path: |
+      ~/.npm
+      node_modules
+      .next/cache
+    key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+    restore-keys: |
+      ${{ runner.os }}-
+```
+
+**What to cache:**
+- `node_modules` (keyed on lockfile hash)
+- Build output (keyed on source hash)
+- Test result cache (skip passing tests on unchanged files)
+
+### Parallelisation
+
+```yaml
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps: ...
+
+  test:
+    runs-on: ubuntu-latest
+    steps: ...
+
+  type-check:
+    runs-on: ubuntu-latest
+    steps: ...
+
+  # All three run in parallel — no `needs:`
+```
+
+### Change Detection
+
+Don't run everything on every commit:
+
+```yaml
+- name: Detect changed packages
+  uses: dorny/paths-filter@v3
+  id: changes
+  with:
+    filters: |
+      ui:
+        - 'packages/ui/**'
+      api:
+        - 'packages/api/**'
+
+- name: Test UI
+  if: steps.changes.outputs.ui == 'true'
+  run: npm test --workspace=packages/ui
+```
+
+---
+
+## Local Development
+
+### The "Time to First Change" Metric
+
+How long does it take a new developer to make a change and see it in their browser? This should be under 10 minutes. If it's longer, that's a platform problem.
+
+**The checklist:**
+- `git clone` → `npm install` → time?
+- `npm run dev` startup time?
+- Hot reload time after a change?
+- Do environment variables have documented defaults?
+
+### API Mocking with MSW
+
+Mock Service Worker intercepts requests at the network level — no need to mock `fetch` or `axios`.
+
+```tsx
+// src/mocks/handlers.ts
+import { http, HttpResponse } from 'msw';
+
+export const handlers = [
+  http.get('/api/user', () => {
+    return HttpResponse.json({ id: '1', name: 'Test User' });
+  }),
+  http.post('/api/orders', async ({ request }) => {
+    const body = await request.json();
+    return HttpResponse.json({ id: 'order-123', ...body }, { status: 201 });
+  }),
+];
+```
+
+This means developers can work on frontend features without a running backend, and tests use the same mock setup.
+
+### Consistent Environments
+
+Environment inconsistency ("it works on my machine") wastes more developer time than almost anything else.
+
+**Solutions in order of adoption difficulty:**
+1. **`.nvmrc` or `.node-version`** — pins Node.js version, low friction
+2. **`mise` or `asdf`** — manages all tool versions (Node, pnpm, etc.)
+3. **Dev containers (`.devcontainer/`)** — full environment in a container
+4. **Nix** — hermetic builds, steep learning curve but ultimate consistency
+
+---
+
+## Onboarding
+
+The onboarding experience is a DX audit you can run repeatedly. Every few months, pair with a new joiner and observe — don't help, just watch and take notes on every friction point.
+
+**Good onboarding documentation includes:**
+
+- **What the project is** (1 paragraph, no jargon)
+- **How to run it locally** (exact commands, no assumptions)
+- **Where things are** (directory structure with comments)
+- **How to make a change and test it** (full loop, not just "run the tests")
+- **How to get help** (Slack channel, team lead, office hours)
+
+**Anti-patterns:**
+- Onboarding docs that were last updated 18 months ago
+- "Ask someone" as a step in the setup guide
+- Setup that requires access you don't have yet
+
+---
+
+## Tooling Recommendations
+
+| Category | Tool | Why |
+|----------|------|-----|
+| Linting | ESLint + `@typescript-eslint` | Type-aware rules catch real bugs |
+| Formatting | Prettier (no config) | Zero bikeshedding |
+| Pre-commit hooks | lint-staged + husky | Fast feedback before CI |
+| Commit messages | commitlint + conventional commits | Enables automated changelogs |
+| API mocking | MSW | Network-level, works in browser and tests |
+| Test runner | Vitest | Fast, native ESM, compatible with Jest API |
+| E2E | Playwright | Multi-browser, fast, good DX |
+| Bundler | Vite | Default choice for new projects |
+
+</DocsLayout>
